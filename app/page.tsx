@@ -1,101 +1,106 @@
-import Image from "next/image";
+"use client";
+
+import { Textarea } from "@/components/ui/textarea";
+import Particles from "@/components/ui/particles";
+import { Chips } from "@/components/ui/chips";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/chips copy";
+
+const scopes = [
+  "frontend",
+  "backend",
+  "devops",
+  "design",
+  "management",
+  "other",
+] as const;
+
+const FormSchema = z.object({
+  text: z.string().min(1).max(255),
+  tag: z.enum(scopes).optional(),
+});
+
+type FormValues = z.infer<typeof FormSchema>;
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    resolver: zodResolver(FormSchema),
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  const onSubmit = useCallback(
+    async (values: FormValues) => {
+      const sleep = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+      await sleep(1000);
+      reset();
+      console.log({ values });
+    },
+    [reset]
+  );
+
+  console.log({ isSubmitting, errors });
+
+  const tag = watch("tag");
+
+  return (
+    <main className="relative p-10  gap-10 flex h-screen w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl">
+      <h1 className="motion-preset-bounce mb-10 text-4xl text-center font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-dark">
+        Tell us what you did and we will make sure it sounds complicated and
+        advanced 🚀
+      </h1>
+      <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+        {errors.text && (
+          <span className="text-red-500 text-sm">{errors.text.message}</span>
+        )}
+        <Textarea
+          autoFocus
+          className={cn(
+            "motion-preset-fade shadow-lg shadow-gray-300 min-h-32 p-8 text-white bg-gray-800",
+            errors.text ? "border-red-700" : ""
+          )}
+          maxLength={255 * 2}
+          {...register("text")}
+        />
+
+        <p className="mt-4 mb-2 text-lg font-semibold">
+          Additionaly select a tag to make it sound more professional (optional)
+        </p>
+
+        <Chips
+          onChange={(item: string) => {
+            setValue(
+              "tag",
+              item === tag ? undefined : (item as FormValues["tag"])
+            );
+          }}
+          value={tag as string}
+          items={scopes}
+        />
+
+        <Button className="mt-8 w-full p-7 transition-transform duration-200 active:scale-x-[0.99]">
+          {isSubmitting ? <Spinner /> : "Generate"}
+        </Button>
+      </form>
+      <div className="motion-preset-fade shadow-gray-300 min-h-32 p-8 text-white w-full z-10"></div>
+      <Particles
+        className="absolute inset-0"
+        quantity={1000}
+        ease={80}
+        color={"#000"}
+        refresh
+      />
+    </main>
   );
 }
