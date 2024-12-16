@@ -3,71 +3,91 @@
 import { Textarea } from "@/components/ui/textarea";
 import Particles from "@/components/ui/particles";
 import { Chips } from "@/components/ui/chips";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/chips copy";
-
-const scopes = [
-  "frontend",
-  "backend",
-  "devops",
-  "design",
-  "management",
-  "other",
-] as const;
-
-const FormSchema = z.object({
-  text: z.string().min(1).max(255),
-  tag: z.enum(scopes).optional(),
-});
-
-type FormValues = z.infer<typeof FormSchema>;
+import { generateResponse } from "@/server/jargon";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SelectLabel } from "@radix-ui/react-select";
+import {
+  GenerateJargonDto,
+  GenerateJargonSchema,
+  Levels,
+} from "@/models/jargon";
+import { SCOPES } from "@/constants/scopes";
+import { TypeWriter } from "@/components/ui/type-writer";
 
 export default function Home() {
+  const [response, setResponse] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+  } = useForm<GenerateJargonDto>({
+    values: {
+      level: Levels.simple,
+      text: "",
+    },
+    resolver: zodResolver(GenerateJargonSchema),
   });
 
-  const onSubmit = useCallback(
-    async (values: FormValues) => {
-      const sleep = (ms: number) =>
-        new Promise((resolve) => setTimeout(resolve, ms));
-      await sleep(1000);
-      reset();
-      console.log({ values });
-    },
-    [reset]
-  );
+  const onSubmit = useCallback(async (values: GenerateJargonDto) => {
+    setResponse(() => null);
+    const res = await generateResponse(values.text, values.level, values.scope);
+    setResponse(() => res);
+  }, []);
 
-  console.log({ isSubmitting, errors });
-
-  const tag = watch("tag");
+  const scope = watch("scope");
 
   return (
-    <main className="relative p-10  gap-10 flex h-screen w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl">
-      <h1 className="motion-preset-bounce mb-10 text-4xl text-center font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-dark">
+    <main className="relative p-10  gap-10 flex min-h-screen w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl">
+      <h1 className="motion-preset-bounce mb-10 text-4xl text-center font-extrabold leading-none tracking-tight md:text-3xl lg:text-4xl text-dark">
         Tell us what you did and we will make sure it sounds complicated and
         advanced 🚀
       </h1>
       <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+        <Select
+          value={watch("level")}
+          onValueChange={(value) =>
+            setValue("level", value as GenerateJargonDto["level"])
+          }
+        >
+          {errors.level && (
+            <span className="text-red-500 text-sm">{errors.level.message}</span>
+          )}
+          <SelectTrigger className="w-full mb-4 z-10 bg-white">
+            <SelectValue placeholder="Select level" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Level</SelectLabel>
+              <SelectItem value="simple">Simple</SelectItem>
+              <SelectItem value="advanced">Advanced</SelectItem>
+              <SelectItem value="complex">Complex</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
         {errors.text && (
           <span className="text-red-500 text-sm">{errors.text.message}</span>
         )}
         <Textarea
           autoFocus
+          placeholder="Tell us what you did"
           className={cn(
-            "motion-preset-fade shadow-lg shadow-gray-300 min-h-32 p-8 text-white bg-gray-800",
+            "motion-preset-fade shadow-lg shadow-gray-300 min-h-32 p-8 text-white bg-gray-800 placeholder:text-white",
             errors.text ? "border-red-700" : ""
           )}
           maxLength={255 * 2}
@@ -81,19 +101,23 @@ export default function Home() {
         <Chips
           onChange={(item: string) => {
             setValue(
-              "tag",
-              item === tag ? undefined : (item as FormValues["tag"])
+              "scope",
+              item === scope ? undefined : (item as GenerateJargonDto["scope"])
             );
           }}
-          value={tag as string}
-          items={scopes}
+          value={scope as string}
+          items={SCOPES}
         />
 
         <Button className="mt-8 w-full p-7 transition-transform duration-200 active:scale-x-[0.99]">
           {isSubmitting ? <Spinner /> : "Generate"}
         </Button>
       </form>
-      <div className="motion-preset-fade shadow-gray-300 min-h-32 p-8 text-white w-full z-10"></div>
+      {response && (
+        <div className="mb-10 border shadow-gray-300 min-h-32 p-8 text-black w-full z-10">
+          <TypeWriter text={response} />
+        </div>
+      )}
       <Particles
         className="absolute inset-0"
         quantity={1000}
