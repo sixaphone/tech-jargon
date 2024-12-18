@@ -5,11 +5,6 @@ import Anthropic from "@anthropic-ai/sdk";
 
 class TechJargonGenerator {
   public generate(text: string, level: Level, scope: Scope): string {
-    console.log({
-      text,
-      level,
-      scope,
-    })
     let replacements = [
       ...text
         .split(" ")

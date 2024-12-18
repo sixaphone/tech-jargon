@@ -78,7 +78,7 @@ export const SUBSTITUTIONS: Record<Scope | "general", string[]> = {
     "reverse the colors from hsl to lsh",
     "use the Gutenberg principle to design the layout",
     "recreate figma from scratch",
-    "go shopping in photo shop",
+    "shop in photo shop",
     "have adobe create a new user-centric,multi-demensional, pentagon approved design tool",
     "interface with the users",
     "build a workshop to make new canvases for Canva",
