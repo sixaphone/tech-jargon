@@ -6,3 +6,7 @@ Generate a complex response for a simple problem.
 ## How it works
 
 We either use AI to generate the response or fallback to a local algortihm.
+
+## Try it out
+
+At: https://tech-jargon.vercel.app
