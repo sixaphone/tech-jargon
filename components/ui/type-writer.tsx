@@ -10,7 +10,7 @@ type TypeWriterProps = {
 export const TypeWriter = ({
   text,
   className,
-  speed = 50,
+  speed = 20,
 }: TypeWriterProps) => {
   const [displayedText, setDisplayedText] = useState("");
   const [index, setIndex] = useState(0);

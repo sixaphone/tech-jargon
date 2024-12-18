@@ -6,5 +6,4 @@ export const SCOPES = [
   Scopes.devops,
   Scopes.design,
   Scopes.management,
-  Scopes.other,
 ];

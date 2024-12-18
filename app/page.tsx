@@ -27,6 +27,13 @@ import {
 import { SCOPES } from "@/constants/scopes";
 import { TypeWriter } from "@/components/ui/type-writer";
 import Image from "next/image";
+import { ClipboardCopy } from "lucide-react";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@radix-ui/react-tooltip";
 
 export default function Home() {
   const [response, setResponse] = useState<string | null>(null);
@@ -53,9 +60,9 @@ export default function Home() {
   const scope = watch("scope");
 
   return (
-    <>
-      <main className="relative p-10 gap-10 flex min-h-screen w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background">
-        <h1 className="motion-preset-bounce mb-10 text-4xl text-center font-extrabold leading-none tracking-tight md:text-3xl lg:text-4xl text-dark">
+    <div className="min-h-screen flex flex-col">
+      <main className="relative px-10 gap-10 flex flex-1 w-full flex-col items-center justify-center overflow-hidden bg-background">
+        <h1 className="motion-preset-bouncetext-4xl text-center font-extrabold leading-none tracking-tight md:text-3xl lg:text-4xl text-dark">
           Tell us what you did and we will make sure it sounds complicated and
           advanced 🚀
         </h1>
@@ -91,7 +98,7 @@ export default function Home() {
             autoFocus
             placeholder="Tell us what you did"
             className={cn(
-              "motion-preset-fade shadow-lg shadow-gray-300 min-h-32 p-8 text-white bg-gray-800 placeholder:text-white",
+              "motion-preset-fade shadow-lg shadow-gray-300 min-h-32 p-8 text-white bg-gray-800 placeholder:text-gray-300",
               errors.text ? "border-red-700" : ""
             )}
             maxLength={255 * 2}
@@ -120,11 +127,40 @@ export default function Home() {
             {isSubmitting ? <Spinner /> : "Generate"}
           </Button>
         </form>
-        {response && (
-          <div className="mb-10 border  min-h-32 p-8 text-black w-full z-10">
-            <TypeWriter text={response} />
-          </div>
-        )}
+        <div className="flex flex-col gap-3 py-2 border min-h-32 text-black w-full z-10">
+          {response && (
+            <div className="flex w-full justify-end pr-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(response!);
+                      }}
+                    >
+                      <ClipboardCopy width={15} height={15} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="border bg-gray-800 text-white z-10 p-2 text-sm font-semibold ">
+                    Copy
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+
+          {response && (
+            <div className="px-8">
+              <TypeWriter text={response} />
+            </div>
+          )}
+
+          {!response && (
+            <div className="w-full min-h-32 flex justify-center items-center">
+              <p>The systems response will be here</p>
+            </div>
+          )}
+        </div>
         <Particles
           className="absolute inset-0"
           quantity={1000}
@@ -134,15 +170,11 @@ export default function Home() {
         />
       </main>
       <footer className="w-full border-t bg-white gap-2 flex justify-center items-center h-14">
-        <Image
-          width={24}
-          height={24}
-          src='/github.svg'
-          alt='Github logo'
-        />
-        <a target="_blank" href='https://github.com/sixaphone'>GitHub</a>
-
+        <Image width={24} height={24} src="/github.svg" alt="Github logo" />
+        <a target="_blank" href="https://github.com/sixaphone">
+          GitHub
+        </a>
       </footer>
-    </>
+    </div>
   );
 }

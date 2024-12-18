@@ -1,7 +1,8 @@
-import { Level, Levels } from "@/models/jargon";
+import { Level, Levels, PatternTuple } from "@/models/jargon";
+import { ADVANCED_PATTERN, COMPLEX_PATTERN, SIMPLE_PATTERN } from "./sentences";
 
-export const LEVELS_NUMERIC_MAP = new Map<Level, number>([
-  [Levels.simple, 1],
-  [Levels.advanced, 2],
-  [Levels.complex, 3],
+export const LEVELS_PATTERN_MAP = new Map<Level, PatternTuple[]>([
+  [Levels.simple, SIMPLE_PATTERN],
+  [Levels.advanced, ADVANCED_PATTERN],
+  [Levels.complex, COMPLEX_PATTERN],
 ]);

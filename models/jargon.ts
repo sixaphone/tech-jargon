@@ -26,3 +26,5 @@ export const GenerateJargonSchema = z.object({
 });
 
 export type GenerateJargonDto = z.infer<typeof GenerateJargonSchema>;
+
+export type PatternTuple = [number, string];

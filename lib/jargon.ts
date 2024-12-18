@@ -1,23 +1,39 @@
-import { LEVELS_NUMERIC_MAP } from "@/constants/levels";
-import { SENTENCES } from "@/constants/sentences";
+import { LEVELS_PATTERN_MAP } from "@/constants/levels";
+import { SUBSTITUTIONS, TERMS } from "@/constants/sentences";
 import { Level, Scope } from "@/models/jargon";
 import Anthropic from "@anthropic-ai/sdk";
 
 class TechJargonGenerator {
   public generate(text: string, level: Level, scope: Scope): string {
-    const words = text.split(" ");
-    const complexity = LEVELS_NUMERIC_MAP.get(level) ?? 1;
-    const sentenceCount = words.length * complexity;
+    console.log({
+      text,
+      level,
+      scope,
+    })
+    let replacements = [
+      ...text
+        .split(" ")
+        .flatMap((word) => TERMS[word])
+        .filter(Boolean),
+      ...SUBSTITUTIONS[scope],
+      ...SUBSTITUTIONS.general,
+    ];
+    const patterns = LEVELS_PATTERN_MAP.get(level)!;
 
-    const sentencesToUse = [...SENTENCES[scope], ...SENTENCES.general];
+    return patterns
+      .map(([replacementCount, pattern]) => {
+        let sentence = pattern;
 
-    const jargon = [];
-    for (let i = 0; i < sentenceCount; i++) {
-      const idx = this._getRandomIndex(sentencesToUse);
-      jargon.push(sentencesToUse.splice(idx, 1));
-    }
+        for (let i = 1; i <= replacementCount; i++) {
+          const randomIndex = this._getRandomIndex(replacements);
+          const randomReplacement = replacements[randomIndex];
+          sentence = sentence.replace(`$${i}`, randomReplacement);
+          replacements = replacements.toSpliced(randomIndex, 1);
+        }
 
-    return jargon.join(". ");
+        return sentence;
+      })
+      .join(" ");
   }
 
   private _getRandomIndex<T>(array: T[]): number {
