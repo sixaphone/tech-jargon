@@ -61,7 +61,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="relative px-10 gap-10 flex flex-1 w-full flex-col items-center justify-center overflow-hidden bg-background">
+      <main className="relative px-10 py-6 gap-10 flex flex-1 w-full flex-col items-center justify-center overflow-hidden bg-background">
         <h1 className="motion-preset-bouncetext-4xl text-center font-extrabold leading-none tracking-tight md:text-3xl lg:text-4xl text-dark">
           Tell us what you did and we will make sure it sounds complicated and
           advanced 🚀
